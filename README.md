@@ -5,7 +5,7 @@
 Live: **https://freepdf-e5m.pages.dev**
 
 <p align="center">
-  <img src="./source.gif" alt="Dobby is free" width="480" />
+  <img src="https://raw.githubusercontent.com/ChinmayShringi/freePDF/main/source.gif" alt="Dobby is free" width="480" />
 </p>
 
 <p align="center"><strong>Master gave Dobby a sock. PDF IS FREE.</strong></p>
@@ -118,6 +118,35 @@ privacy-consistent metrics, and set the env vars above under
 ## Privacy
 
 Your files are processed entirely in your browser. They are not uploaded, logged, or stored anywhere. Closing the tab discards everything.
+
+## About
+
+freePDF exists because most "free" PDF editors are not actually free: they add a watermark, gate export behind a signup, or charge to download. freePDF runs every operation client-side, so there is no server cost per edit and therefore no reason to paywall. It is open source under the MIT license, and it stays free.
+
+See [`docs/PROGRESS.md`](./docs/PROGRESS.md) for the full feature list and build notes, and [`CHANGELOG.md`](./CHANGELOG.md) for release history.
+
+## Support the project (optional tip jar)
+
+freePDF is free forever, with no paywall and no watermark. If it saved you money or time, you can leave an optional tip. It never unlocks anything; every feature is already free.
+
+**Tip jar:** https://ko-fi.com/freepdf
+
+### How the tip jar works and how you get paid
+
+The tip jar is a [Ko-fi](https://ko-fi.com/) link. Ko-fi pays creators directly through their own payment processor, so to actually receive money you set up your own Ko-fi account and point the site at it:
+
+1. Create a free account at [ko-fi.com](https://ko-fi.com/).
+2. In Ko-fi, go to **Settings → Payments** and connect a payout method (PayPal or Stripe). Tips then land in that account. Ko-fi takes 0% on standard donations; only the PayPal/Stripe processing fee applies.
+3. Note your Ko-fi username, which is the last part of your page URL: `https://ko-fi.com/<your-username>`.
+4. Point freePDF at your page by setting the build-time env var `VITE_KOFI_HANDLE=<your-username>` (locally in `.env.local`, or on Cloudflare Pages under **Settings → Environment variables**), then redeploy.
+
+Important: the handle currently defaults to the placeholder `freepdf`. Until you replace it with your own Ko-fi username, the tip-jar buttons point at `ko-fi.com/freepdf`, which is not your account. Set `VITE_KOFI_HANDLE` to your handle before relying on it.
+
+To withdraw, you do not "claim" from freePDF at all; the money goes straight to your connected PayPal/Stripe via Ko-fi, and you withdraw from there per Ko-fi's payout schedule.
+
+## Contributing
+
+Contributions are welcome. See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for how to set up the project, the coding conventions, and how to open a pull request.
 
 ## License
 
