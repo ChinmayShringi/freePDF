@@ -9,6 +9,7 @@ import { PdfPage } from '@/components/editor/PdfPage';
 export function PdfViewer() {
   const numPages = useDocumentStore((s) => s.numPages);
   const scale = useDocumentStore((s) => s.scale);
+  const docId = useDocumentStore((s) => s.docId);
   // Callback ref kept in state so children re-render once the root is mounted.
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
 
@@ -22,7 +23,7 @@ export function PdfViewer() {
       <div className="flex flex-col items-center gap-4 px-4 py-6">
         {Array.from({ length: numPages }, (_, i) => (
           <PdfPage
-            key={i + 1}
+            key={`${docId}-${i + 1}`}
             pageNumber={i + 1}
             scrollRoot={scrollRoot}
             scale={scale}

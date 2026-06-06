@@ -6,7 +6,14 @@ import {
   createLoadingTask,
   readFileAsArrayBuffer,
 } from '@/lib/pdf/loadPdf';
+import { buildEditedPdf } from '@/lib/pdf/exportPdf';
 import { useEditorStore } from '@/store/editorStore';
+
+/** Max number of page-operation snapshots kept for undo. */
+const MAX_PAGE_OP_HISTORY = 10;
+
+/** A page-structure transform: takes PDF bytes, returns new PDF bytes. */
+export type PageTransform = (bytes: Uint8Array) => Promise<Uint8Array>;
 
 /** Drop all overlay edits and undo history (used when the document changes). */
 function clearEdits() {
@@ -35,16 +42,28 @@ interface DocumentState {
   fileName: string | null;
   status: DocumentStatus;
   error: string | null;
+  /** Bumped whenever the working document is replaced, to force fresh renders. */
+  docId: number;
   /** Current zoom scale (1 = 100%). */
   scale: number;
   /** 1-based page currently in focus (for the page indicator). */
   currentPage: number;
+  /** True while a page operation is baking/transforming/reloading. */
+  pageOpBusy: boolean;
+  /** Snapshots of document bytes before each page op, for undo. */
+  pageOpHistory: Uint8Array[];
 
   loadFromFile: (file: File) => Promise<void>;
   setScale: (scale: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
   setCurrentPage: (page: number) => void;
+  /** Bake pending text edits, apply a page transform, and reload the document. */
+  applyPageTransform: (transform: PageTransform) => Promise<void>;
+  /** Revert the most recent page operation. */
+  undoPageOp: () => Promise<void>;
+  /** Bytes with pending edits baked in, for split/extract downloads. */
+  getBakedBytes: () => Promise<Uint8Array | null>;
   reset: () => void;
 }
 
@@ -52,7 +71,30 @@ function clampScale(scale: number): number {
   return Math.min(MAX_SCALE, Math.max(MIN_SCALE, scale));
 }
 
-export const useDocumentStore = create<DocumentState>((set, get) => ({
+export const useDocumentStore = create<DocumentState>((set, get) => {
+  /**
+   * Swap in a new working document from PDF bytes: tear down the old PDF.js
+   * worker, parse the new bytes (handing PDF.js a throwaway copy and keeping a
+   * pristine copy for export), and update render state. Clamps currentPage.
+   */
+  async function replaceDocument(bytes: Uint8Array): Promise<void> {
+    const previousTask = get().loadingTask;
+    if (previousTask) void previousTask.destroy();
+
+    const pristine = copyBytes(bytes);
+    const task = createLoadingTask(bytes.slice());
+    const pdf = await task.promise;
+    set((s) => ({
+      pdf,
+      loadingTask: task,
+      originalBytes: pristine,
+      numPages: pdf.numPages,
+      currentPage: Math.min(s.currentPage, pdf.numPages),
+      docId: s.docId + 1,
+    }));
+  }
+
+  return {
   originalBytes: null,
   pdf: null,
   loadingTask: null,
@@ -60,8 +102,11 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
   fileName: null,
   status: 'idle',
   error: null,
+  docId: 0,
   scale: DEFAULT_SCALE,
   currentPage: 1,
+  pageOpBusy: false,
+  pageOpHistory: [],
 
   loadFromFile: async (file) => {
     // Destroy any previously loaded document before replacing it.
@@ -80,6 +125,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
       originalBytes: null,
       numPages: 0,
       currentPage: 1,
+      pageOpHistory: [],
     });
 
     try {
@@ -91,14 +137,15 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
       const task = createLoadingTask(bytes);
       const pdf = await task.promise;
 
-      set({
+      set((s) => ({
         status: 'ready',
         pdf,
         loadingTask: task,
         originalBytes: pristine,
         numPages: pdf.numPages,
         currentPage: 1,
-      });
+        docId: s.docId + 1,
+      }));
     } catch (err) {
       set({
         status: 'error',
@@ -119,6 +166,65 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
   zoomOut: () => set((s) => ({ scale: clampScale(s.scale - SCALE_STEP) })),
   setCurrentPage: (page) => set({ currentPage: page }),
 
+  getBakedBytes: async () => {
+    const { originalBytes } = get();
+    if (!originalBytes) return null;
+    const edits = useEditorStore.getState().edits;
+    if (edits.length === 0) return originalBytes.slice();
+    return buildEditedPdf(originalBytes.slice(), edits);
+  },
+
+  applyPageTransform: async (transform) => {
+    const { originalBytes } = get();
+    if (!originalBytes) return;
+    set({ pageOpBusy: true, error: null });
+    try {
+      // Bake any pending overlay edits so they become part of the document
+      // before the structure changes; then page indices stay consistent.
+      const baked = await get().getBakedBytes();
+      if (!baked) return;
+      const snapshot = originalBytes.slice();
+      const result = await transform(baked);
+      await replaceDocument(result);
+      clearEdits();
+      set((s) => {
+        const history = [...s.pageOpHistory, snapshot];
+        return {
+          pageOpHistory:
+            history.length > MAX_PAGE_OP_HISTORY
+              ? history.slice(history.length - MAX_PAGE_OP_HISTORY)
+              : history,
+        };
+      });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : 'Page operation failed.',
+      });
+    } finally {
+      set({ pageOpBusy: false });
+    }
+  },
+
+  undoPageOp: async () => {
+    const { pageOpHistory } = get();
+    if (pageOpHistory.length === 0) return;
+    const previous = pageOpHistory[pageOpHistory.length - 1];
+    set({ pageOpBusy: true, error: null });
+    try {
+      await replaceDocument(previous.slice());
+      clearEdits();
+      set({ pageOpHistory: pageOpHistory.slice(0, -1) });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : 'Could not undo page operation.',
+      });
+    } finally {
+      set({ pageOpBusy: false });
+    }
+  },
+
   reset: () => {
     const previousTask = get().loadingTask;
     if (previousTask) {
@@ -135,6 +241,9 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
       error: null,
       scale: DEFAULT_SCALE,
       currentPage: 1,
+      pageOpBusy: false,
+      pageOpHistory: [],
     });
   },
-}));
+  };
+});
