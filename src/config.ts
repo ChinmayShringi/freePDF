@@ -5,7 +5,7 @@
  */
 
 /** Ko-fi username, e.g. `https://ko-fi.com/<handle>`. */
-export const KOFI_HANDLE = import.meta.env.VITE_KOFI_HANDLE ?? 'freepdf';
+export const KOFI_HANDLE = import.meta.env.VITE_KOFI_HANDLE ?? 'chinmay_shringi';
 
 /** Full tip-jar URL. */
 export const SUPPORT_URL = `https://ko-fi.com/${KOFI_HANDLE}`;

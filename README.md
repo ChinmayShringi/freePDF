@@ -5,7 +5,7 @@
 Live: **https://freepdf-e5m.pages.dev**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ChinmayShringi/freePDF/main/source.gif" alt="Dobby is free" width="480" />
+  <img src="source.gif" alt="Dobby is free" width="480" />
 </p>
 
 <p align="center"><strong>Master gave Dobby a sock. PDF IS FREE.</strong></p>
@@ -129,7 +129,7 @@ See [`docs/PROGRESS.md`](./docs/PROGRESS.md) for the full feature list and build
 
 freePDF is free forever, with no paywall and no watermark. If it saved you money or time, you can leave an optional tip. It never unlocks anything; every feature is already free.
 
-**Tip jar:** https://ko-fi.com/freepdf
+**Tip jar:** https://ko-fi.com/chinmay_shringi
 
 ### How the tip jar works and how you get paid
 
@@ -140,7 +140,7 @@ The tip jar is a [Ko-fi](https://ko-fi.com/) link. Ko-fi pays creators directly 
 3. Note your Ko-fi username, which is the last part of your page URL: `https://ko-fi.com/<your-username>`.
 4. Point freePDF at your page by setting the build-time env var `VITE_KOFI_HANDLE=<your-username>` (locally in `.env.local`, or on Cloudflare Pages under **Settings → Environment variables**), then redeploy.
 
-Important: the handle currently defaults to the placeholder `freepdf`. Until you replace it with your own Ko-fi username, the tip-jar buttons point at `ko-fi.com/freepdf`, which is not your account. Set `VITE_KOFI_HANDLE` to your handle before relying on it.
+The tip jar points at `ko-fi.com/chinmay_shringi` by default. To run your own instance under a different account, set `VITE_KOFI_HANDLE` to your handle (locally in `.env.local`, or on Cloudflare Pages under Settings, Environment variables) and redeploy.
 
 To withdraw, you do not "claim" from freePDF at all; the money goes straight to your connected PayPal/Stripe via Ko-fi, and you withdraw from there per Ko-fi's payout schedule.
 
