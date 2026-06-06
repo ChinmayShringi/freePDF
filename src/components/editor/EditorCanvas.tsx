@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
-import { Stage, Layer, Text, Transformer } from 'react-konva';
+import { useEffect, useRef, useState } from 'react';
+import { Stage, Layer, Text, Image as KonvaImage, Transformer } from 'react-konva';
 import type Konva from 'konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import { useEditorStore } from '@/store/editorStore';
 import { useToolStore } from '@/store/toolStore';
 import { rgbToHex } from '@/lib/color';
-import type { TextEdit } from '@/types/edits';
+import type { ImageEdit, TextEdit } from '@/types/edits';
 
 interface EditorCanvasProps {
   pageIndex: number;
@@ -16,11 +16,92 @@ interface EditorCanvasProps {
   scale: number;
 }
 
+/** Minimum size (display points) an image can be resized down to. */
+const MIN_IMAGE_SIZE = 8;
+
+/** Load a data URL into an HTMLImageElement for react-konva. */
+function useDataUrlImage(dataUrl: string): HTMLImageElement | null {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImage(img);
+    img.src = dataUrl;
+    return () => {
+      img.onload = null;
+    };
+  }, [dataUrl]);
+  return image;
+}
+
+interface ImageNodeProps {
+  edit: ImageEdit;
+  scale: number;
+  draggable: boolean;
+  onSelect: () => void;
+  onChange: (patch: Partial<ImageEdit>) => void;
+  onDragStart: () => void;
+}
+
+/** A single placed signature/image rendered on the Konva layer. */
+function ImageNode({
+  edit,
+  scale,
+  draggable,
+  onSelect,
+  onChange,
+  onDragStart,
+}: ImageNodeProps) {
+  const image = useDataUrlImage(edit.dataUrl);
+
+  // Render the node even before the bitmap loads (with no image) so it has
+  // bounds the Transformer can attach to immediately after placement.
+  return (
+    <KonvaImage
+      id={edit.id}
+      image={image ?? undefined}
+      x={edit.x * scale}
+      y={edit.y * scale}
+      width={edit.width * scale}
+      height={edit.height * scale}
+      draggable={draggable}
+      onMouseDown={(e) => {
+        e.cancelBubble = true;
+        onSelect();
+      }}
+      onTap={onSelect}
+      onDragStart={onDragStart}
+      onDragEnd={(e) => {
+        onChange({ x: e.target.x() / scale, y: e.target.y() / scale });
+      }}
+      onTransformStart={onDragStart}
+      onTransformEnd={(e) => {
+        const node = e.target;
+        const nextWidth = Math.max(
+          MIN_IMAGE_SIZE,
+          (node.width() * node.scaleX()) / scale,
+        );
+        const nextHeight = Math.max(
+          MIN_IMAGE_SIZE,
+          (node.height() * node.scaleY()) / scale,
+        );
+        node.scaleX(1);
+        node.scaleY(1);
+        onChange({
+          x: node.x() / scale,
+          y: node.y() / scale,
+          width: nextWidth,
+          height: nextHeight,
+        });
+      }}
+    />
+  );
+}
+
 /**
  * Konva overlay sitting exactly on top of one rendered page. Handles placing,
- * selecting, and dragging text objects. Edits are stored in display space
- * (scale 1), so this component multiplies by `scale` going to the canvas and
- * divides by `scale` coming back.
+ * selecting, dragging, and resizing overlay objects. Edits are stored in
+ * display space (scale 1), so this component multiplies by `scale` going to the
+ * canvas and divides by `scale` coming back.
  */
 export function EditorCanvas({
   pageIndex,
@@ -42,10 +123,16 @@ export function EditorCanvas({
   const layerRef = useRef<Konva.Layer>(null);
   const transformerRef = useRef<Konva.Transformer>(null);
 
-  const pageEdits = allEdits.filter(
+  const textEdits = allEdits.filter(
     (e): e is TextEdit => e.type === 'text' && e.pageIndex === pageIndex,
   );
-  const selectionOnThisPage = pageEdits.some((e) => e.id === selectedId);
+  const imageEdits = allEdits.filter(
+    (e): e is ImageEdit => e.type === 'image' && e.pageIndex === pageIndex,
+  );
+
+  const selectedImage = imageEdits.find((e) => e.id === selectedId) ?? null;
+  const selectionOnThisPage =
+    textEdits.some((e) => e.id === selectedId) || selectedImage !== null;
 
   // Keep the transformer attached to the currently-selected node on this page.
   useEffect(() => {
@@ -60,7 +147,7 @@ export function EditorCanvas({
     const node = layer.findOne(`#${selectedId}`);
     tr.nodes(node ? [node] : []);
     tr.getLayer()?.batchDraw();
-  }, [selectedId, selectionOnThisPage, pageEdits]);
+  }, [selectedId, selectionOnThisPage, textEdits, imageEdits]);
 
   const handleStageMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     // Only act on clicks that hit the empty stage, not an existing object.
@@ -94,7 +181,18 @@ export function EditorCanvas({
       style={{ cursor: activeTool === 'text' ? 'crosshair' : 'default' }}
     >
       <Layer ref={layerRef}>
-        {pageEdits.map((edit) => (
+        {imageEdits.map((edit) => (
+          <ImageNode
+            key={edit.id}
+            edit={edit}
+            scale={scale}
+            draggable={activeTool === 'select'}
+            onSelect={() => select(edit.id)}
+            onChange={(patch) => updateEdit(edit.id, patch)}
+            onDragStart={beginInteraction}
+          />
+        ))}
+        {textEdits.map((edit) => (
           <Text
             key={edit.id}
             id={edit.id}
@@ -121,10 +219,18 @@ export function EditorCanvas({
         ))}
         <Transformer
           ref={transformerRef}
-          resizeEnabled={false}
+          resizeEnabled={selectedImage !== null}
           rotateEnabled={false}
+          keepRatio={false}
           borderStroke="#dc2626"
           borderStrokeWidth={1.5}
+          anchorStroke="#dc2626"
+          anchorSize={8}
+          boundBoxFunc={(oldBox, newBox) =>
+            newBox.width < MIN_IMAGE_SIZE || newBox.height < MIN_IMAGE_SIZE
+              ? oldBox
+              : newBox
+          }
         />
       </Layer>
     </Stage>

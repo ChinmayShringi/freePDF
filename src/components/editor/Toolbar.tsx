@@ -8,8 +8,12 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: 'text', label: 'Text' },
 ];
 
+interface ToolbarProps {
+  onOpenSignature: () => void;
+}
+
 /** Top toolbar: tools, file info, page indicator, zoom, and export. */
-export function Toolbar() {
+export function Toolbar({ onOpenSignature }: ToolbarProps) {
   const fileName = useDocumentStore((s) => s.fileName);
   const numPages = useDocumentStore((s) => s.numPages);
   const currentPage = useDocumentStore((s) => s.currentPage);
@@ -47,6 +51,13 @@ export function Toolbar() {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={onOpenSignature}
+          className="rounded px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+        >
+          Sign
+        </button>
       </div>
 
       <div className="flex items-center gap-4">

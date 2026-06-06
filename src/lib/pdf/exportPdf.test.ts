@@ -1,8 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
-import { buildEditedPdf, editedFileName } from './exportPdf';
+import { buildEditedPdf, dataUrlToBytes, editedFileName } from './exportPdf';
 import { isWinAnsiSafe } from './fontEmbedding';
-import type { TextEdit } from '@/types/edits';
+import type { ImageEdit, TextEdit } from '@/types/edits';
+
+/** A valid 1x1 opaque-red PNG (generated with zlib), as a data URL. */
+const PNG_1X1 =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==';
 
 async function makeBasePdf(pages = 2): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
@@ -59,5 +63,31 @@ describe('buildEditedPdf', () => {
     const out = await buildEditedPdf(base, [textEdit({ pageIndex: 9 })]);
     const reparsed = await PDFDocument.load(out);
     expect(reparsed.getPageCount()).toBe(1);
+  });
+
+  it('bakes an image edit and produces a valid PDF', async () => {
+    const base = await makeBasePdf(1);
+    const imageEdit: ImageEdit = {
+      id: 'i1',
+      type: 'image',
+      pageIndex: 0,
+      x: 100,
+      y: 100,
+      width: 120,
+      height: 60,
+      dataUrl: PNG_1X1,
+    };
+    const out = await buildEditedPdf(base, [imageEdit]);
+    expect(out.length).toBeGreaterThan(0);
+    const reparsed = await PDFDocument.load(out);
+    expect(reparsed.getPageCount()).toBe(1);
+  });
+});
+
+describe('dataUrlToBytes', () => {
+  it('decodes a base64 data URL into the original PNG bytes', () => {
+    const bytes = dataUrlToBytes(PNG_1X1);
+    // PNG magic number: 137 80 78 71 ...
+    expect(Array.from(bytes.slice(0, 4))).toEqual([137, 80, 78, 71]);
   });
 });

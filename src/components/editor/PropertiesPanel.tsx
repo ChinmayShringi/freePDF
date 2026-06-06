@@ -1,7 +1,7 @@
 import { useEditorStore } from '@/store/editorStore';
 import { Button } from '@/components/ui/Button';
 import { hexToRgb, rgbToHex } from '@/lib/color';
-import type { StandardFontFamily, TextEdit } from '@/types/edits';
+import type { StandardFontFamily } from '@/types/edits';
 
 const FONT_OPTIONS: { value: StandardFontFamily; label: string }[] = [
   { value: 'Helvetica', label: 'Helvetica (sans)' },
@@ -17,9 +17,7 @@ export function PropertiesPanel() {
   const removeEdit = useEditorStore((s) => s.removeEdit);
   const beginInteraction = useEditorStore((s) => s.beginInteraction);
 
-  const selected = edits.find((e) => e.id === selectedId) as
-    | TextEdit
-    | undefined;
+  const selected = edits.find((e) => e.id === selectedId);
 
   if (!selected) {
     return (
@@ -28,6 +26,31 @@ export function PropertiesPanel() {
           Select the Text tool and click on the page to add text, or click an
           existing object to edit it.
         </p>
+      </div>
+    );
+  }
+
+  if (selected.type === 'image') {
+    return (
+      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-gray-700">Signature / image</h2>
+        <div className="flex justify-center rounded-md border border-gray-200 bg-[repeating-conic-gradient(#f3f4f6_0_25%,#fff_0_50%)] bg-[length:16px_16px] p-3">
+          <img
+            src={selected.dataUrl}
+            alt="Selected signature"
+            className="max-h-32 object-contain"
+          />
+        </div>
+        <p className="text-xs text-gray-500">
+          Drag to move, or use the handles to resize on the page.
+        </p>
+        <Button
+          variant="secondary"
+          className="mt-2 border-red-300 text-red-600 hover:bg-red-50"
+          onClick={() => removeEdit(selected.id)}
+        >
+          Delete object
+        </Button>
       </div>
     );
   }

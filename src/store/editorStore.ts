@@ -22,6 +22,16 @@ export interface NewTextInput {
   fontFamily: StandardFontFamily;
 }
 
+export interface NewImageInput {
+  pageIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  /** PNG (transparent) data URL. */
+  dataUrl: string;
+}
+
 interface EditorState {
   edits: EditObject[];
   past: EditObject[][];
@@ -30,6 +40,7 @@ interface EditorState {
 
   beginInteraction: () => void;
   addText: (input: NewTextInput) => string;
+  addImage: (input: NewImageInput) => string;
   updateEdit: (id: string, patch: Partial<EditObject>) => void;
   removeEdit: (id: string) => void;
   select: (id: string | null) => void;
@@ -72,6 +83,23 @@ export const useEditorStore = create<EditorState>((set, get) => {
         fontSize: input.fontSize,
         color: input.color,
         fontFamily: input.fontFamily,
+      };
+      set((s) => ({ edits: [...s.edits, edit], selectedId: id }));
+      return id;
+    },
+
+    addImage: (input) => {
+      pushHistory();
+      const id = newId();
+      const edit: EditObject = {
+        id,
+        type: 'image',
+        pageIndex: input.pageIndex,
+        x: input.x,
+        y: input.y,
+        width: input.width,
+        height: input.height,
+        dataUrl: input.dataUrl,
       };
       set((s) => ({ edits: [...s.edits, edit], selectedId: id }));
       return id;
