@@ -77,7 +77,9 @@ function Thumb({
     <div
       ref={wrapperRef}
       className={`group relative flex flex-col items-center gap-1 rounded-md p-2 ${
-        isCurrent ? 'bg-red-50 ring-2 ring-red-500' : 'hover:bg-gray-100'
+        isCurrent
+          ? 'bg-red-50 ring-2 ring-red-500 dark:bg-red-950/40'
+          : 'hover:bg-gray-100 dark:hover:bg-gray-800'
       }`}
     >
       <button
@@ -99,7 +101,7 @@ function Thumb({
         aria-label={`Select page ${pageNumber} for split`}
       />
 
-      <span className="text-xs text-gray-500">{pageNumber}</span>
+      <span className="text-xs text-gray-500 dark:text-gray-400">{pageNumber}</span>
 
       <div className="flex gap-1 opacity-0 transition group-hover:opacity-100">
         <button
@@ -110,7 +112,7 @@ function Thumb({
             stop(e);
             void apply((b) => rotatePage(b, pageIndex, 90));
           }}
-          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40"
+          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           ⟳
         </button>
@@ -122,7 +124,7 @@ function Thumb({
             stop(e);
             void apply((b) => movePage(b, pageIndex, pageIndex - 1));
           }}
-          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40"
+          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           ↑
         </button>
@@ -134,7 +136,7 @@ function Thumb({
             stop(e);
             void apply((b) => movePage(b, pageIndex, pageIndex + 1));
           }}
-          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40"
+          className="rounded bg-white px-1.5 py-0.5 text-xs shadow hover:bg-gray-50 disabled:opacity-40 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
         >
           ↓
         </button>
@@ -206,18 +208,18 @@ export function ThumbnailStrip() {
   return (
     <div
       ref={setScrollRoot}
-      className="flex h-full w-44 shrink-0 flex-col border-r border-gray-200 bg-white"
+      className="flex h-full w-44 shrink-0 flex-col border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
       role="navigation"
       aria-label="Pages"
     >
-      <div className="flex flex-col gap-2 border-b border-gray-200 p-2">
+      <div className="flex flex-col gap-2 border-b border-gray-200 p-2 dark:border-gray-800">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-gray-600">Pages</span>
+          <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">Pages</span>
           <button
             type="button"
             disabled={!canUndo || busy}
             onClick={() => void undoPageOp()}
-            className="rounded px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+            className="rounded px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100 disabled:opacity-40 dark:text-gray-300 dark:hover:bg-gray-800"
             title="Undo last page operation"
           >
             Undo
@@ -227,7 +229,7 @@ export function ThumbnailStrip() {
           type="button"
           disabled={busy}
           onClick={() => mergeInputRef.current?.click()}
-          className="rounded border border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40"
+          className="rounded border border-gray-300 px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-40 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
         >
           + Merge PDF
         </button>
@@ -253,7 +255,7 @@ export function ThumbnailStrip() {
 
       <div className="relative flex-1 overflow-auto">
         {busy && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 text-xs text-gray-600">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/60 text-xs text-gray-600 dark:bg-gray-900/60 dark:text-gray-300">
             Working…
           </div>
         )}

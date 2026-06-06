@@ -12,8 +12,9 @@ const base =
 const variants: Record<Variant, string> = {
   primary: 'bg-red-600 text-white hover:bg-red-700 px-4 py-2',
   secondary:
-    'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 px-4 py-2',
-  ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 px-3 py-2',
+    'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 px-4 py-2 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 dark:hover:bg-gray-700',
+  ghost:
+    'bg-transparent text-gray-700 hover:bg-gray-100 px-3 py-2 dark:text-gray-300 dark:hover:bg-gray-800',
 };
 
 export function Button({

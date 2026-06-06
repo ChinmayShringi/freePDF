@@ -6,7 +6,7 @@ import { REPO_URL, SUPPORT_URL } from '@/config';
  */
 export function EditorFooter() {
   return (
-    <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-1.5 text-xs text-gray-500">
+    <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-200 bg-white px-4 py-1.5 text-xs text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
       <span>
         Your file never leaves your device. Everything runs in your browser; no
         upload, no account, no watermark.
@@ -16,7 +16,7 @@ export function EditorFooter() {
           href={REPO_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-gray-800"
+          className="hover:text-gray-800 dark:hover:text-gray-200"
         >
           Source
         </a>

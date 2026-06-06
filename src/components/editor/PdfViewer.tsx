@@ -35,7 +35,7 @@ export function PdfViewer() {
   return (
     <div
       ref={setScrollRoot}
-      className="h-full overflow-auto bg-gray-200"
+      className="h-full overflow-auto bg-gray-200 dark:bg-gray-800"
       role="region"
       aria-label="PDF pages"
     >

@@ -38,17 +38,17 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
       aria-label={title}
     >
       <div
-        className="w-full max-w-lg rounded-lg bg-white shadow-xl"
+        className="w-full max-w-lg rounded-lg bg-white shadow-xl dark:bg-gray-900"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
-          <h2 className="text-base font-semibold text-gray-800">{title}</h2>
+        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3 dark:border-gray-800">
+          <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">{title}</h2>
           <button
             type="button"
             autoFocus
             onClick={onClose}
             aria-label="Close"
-            className="rounded p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+            className="rounded p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
           >
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path

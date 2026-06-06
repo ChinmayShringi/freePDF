@@ -4,14 +4,127 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary SEO -->
+    <title>Free PDF Editor Online - Edit PDF, No Watermark, No Signup | freePDF</title>
     <meta
       name="description"
-      content="Actually free PDF editor. Edit and download. No paywall. Your files never leave your browser."
+      content="freePDF is a genuinely free online PDF editor. Add text, sign, annotate, merge, split, and rotate PDFs, then download with no watermark and no signup. Your files never leave your browser."
     />
-    <title>freePDF — Actually free, browser-only PDF editor</title>
+    <meta
+      name="keywords"
+      content="free pdf editor, edit pdf online, pdf editor no watermark, free pdf editor online, sign pdf, fill pdf, annotate pdf, merge pdf, split pdf, rotate pdf, add text to pdf, edit pdf free, browser pdf editor, no signup pdf editor"
+    />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="author" content="freePDF" />
+    <link rel="canonical" href="https://freepdf-e5m.pages.dev/" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0f19" media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="freePDF" />
+    <meta property="og:title" content="Free PDF Editor Online - No Watermark, No Signup" />
+    <meta
+      property="og:description"
+      content="Edit, sign, annotate, merge, and split PDFs in your browser. 100% free, no watermark, no signup. Your files never leave your device."
+    />
+    <meta property="og:url" content="https://freepdf-e5m.pages.dev/" />
+    <meta property="og:image" content="https://freepdf-e5m.pages.dev/favicon.svg" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Free PDF Editor Online - No Watermark, No Signup" />
+    <meta
+      name="twitter:description"
+      content="Edit, sign, annotate, merge, and split PDFs in your browser. 100% free, no watermark, no signup."
+    />
+    <meta name="twitter:image" content="https://freepdf-e5m.pages.dev/favicon.svg" />
+
+    <!-- Structured data: a free, browser-based PDF editor -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "freePDF",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any (web browser)",
+        "url": "https://freepdf-e5m.pages.dev/",
+        "description": "A genuinely free online PDF editor. Add text, sign, annotate, merge, split, and rotate PDFs, then download with no watermark and no signup. Files are processed entirely in the browser.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "featureList": [
+          "Edit and add text to PDF",
+          "Sign PDF (draw or upload signature)",
+          "Annotate: highlight, draw, shapes, checkmarks",
+          "Merge, split, rotate, reorder, delete pages",
+          "Cover-and-replace existing text",
+          "Custom font upload",
+          "Export with no watermark"
+        ],
+        "isAccessibleForFree": true,
+        "browserRequirements": "Requires JavaScript and a modern web browser"
+      }
+    </script>
+
+    <!-- FAQ structured data (mirrors the on-page FAQ) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is this PDF editor really free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Every edit and export is free, with no watermark and no signup. Editing runs entirely in your browser, so there is no server cost to pass on."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my files uploaded anywhere?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. Your PDF is opened and edited in your browser and never leaves your device. Closing the tab discards everything."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I edit existing text in a PDF?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, best-effort: double-click a line of text to cover the original and type a replacement that matches its font and size."
+            }
+          }
+        ]
+      }
+    </script>
+
+    <!-- Apply saved/system theme before paint to avoid a flash -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('freepdf-theme');
+          var dark =
+            t === 'dark' ||
+            (t !== 'light' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      freePDF is a free, browser-based PDF editor. Add text, sign, annotate,
+      merge, split, and rotate PDFs, then download with no watermark and no
+      signup. Please enable JavaScript to use the editor.
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

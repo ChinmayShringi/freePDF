@@ -3,6 +3,8 @@ import { useToolStore, type Tool } from '@/store/toolStore';
 import { useEditorStore } from '@/store/editorStore';
 import { Button } from '@/components/ui/Button';
 import { ExportButton } from '@/components/editor/ExportButton';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { GitHubLink } from '@/components/ui/GitHubLink';
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: 'select', label: 'Select' },
@@ -49,15 +51,15 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
   const hasEdits = useEditorStore((s) => s.edits.length > 0);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-2">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-2 dark:border-gray-800 dark:bg-gray-900">
       <div className="flex min-w-0 items-center gap-3">
         <span className="rounded bg-red-600 px-2 py-1 text-xs font-bold text-white">
           PDF
         </span>
-        <span className="hidden max-w-40 truncate text-sm font-medium text-gray-700 sm:inline">
+        <span className="hidden max-w-40 truncate text-sm font-medium text-gray-700 dark:text-gray-200 sm:inline">
           {fileName ?? 'Untitled'}
         </span>
-        <div className="ml-2 flex items-center gap-1 rounded-md bg-gray-100 p-1">
+        <div className="ml-2 flex items-center gap-1 rounded-md bg-gray-100 p-1 dark:bg-gray-800">
           {TOOLS.map((tool) => (
             <button
               key={tool.id}
@@ -66,8 +68,8 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
               aria-pressed={activeTool === tool.id}
               className={`rounded px-3 py-1 text-sm font-medium transition ${
                 activeTool === tool.id
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-red-600 shadow-sm dark:bg-gray-700 dark:text-red-400'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               {tool.label}
@@ -76,12 +78,25 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
         </div>
         <button
           type="button"
+          onClick={() => setTool('matchstyle')}
+          aria-pressed={activeTool === 'matchstyle'}
+          title="Match style: click existing text to copy its font, size, and color"
+          className={`rounded px-3 py-1 text-sm font-medium transition ${
+            activeTool === 'matchstyle'
+              ? 'bg-gray-100 text-red-600 dark:bg-gray-800 dark:text-red-400'
+              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white'
+          }`}
+        >
+          Match style
+        </button>
+        <button
+          type="button"
           onClick={onOpenSignature}
-          className="rounded px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+          className="rounded px-3 py-1 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white"
         >
           Sign
         </button>
-        <div className="flex items-center gap-1 rounded-md bg-gray-100 p-1">
+        <div className="flex items-center gap-1 rounded-md bg-gray-100 p-1 dark:bg-gray-800">
           {ANNOTATION_TOOLS.map((tool) => (
             <button
               key={tool.id}
@@ -91,8 +106,8 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
               title={tool.title}
               className={`rounded px-2.5 py-1 text-sm font-medium transition ${
                 activeTool === tool.id
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-red-600 shadow-sm dark:bg-gray-700 dark:text-red-400'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
               }`}
             >
               {tool.label}
@@ -131,14 +146,14 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
       </div>
 
       <div className="flex items-center gap-4">
-        <span className="text-sm tabular-nums text-gray-500">
+        <span className="text-sm tabular-nums text-gray-500 dark:text-gray-400">
           Page {currentPage} / {numPages}
         </span>
         <div className="flex items-center gap-1">
           <Button variant="ghost" onClick={zoomOut} aria-label="Zoom out" title="Zoom out">
             -
           </Button>
-          <span className="w-14 text-center text-sm tabular-nums text-gray-600">
+          <span className="w-14 text-center text-sm tabular-nums text-gray-600 dark:text-gray-300">
             {Math.round(scale * 100)}%
           </span>
           <Button variant="ghost" onClick={zoomIn} aria-label="Zoom in" title="Zoom in">
@@ -157,6 +172,8 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
         <Button variant="secondary" onClick={reset}>
           Open another
         </Button>
+        <GitHubLink />
+        <ThemeToggle />
       </div>
     </div>
   );

@@ -259,7 +259,7 @@ export function SignatureTool({ open, onClose }: SignatureToolProps) {
 
   return (
     <Modal open={open} title="Add signature" onClose={onClose}>
-      <div className="mb-4 flex gap-1 rounded-md bg-gray-100 p-1">
+      <div className="mb-4 flex gap-1 rounded-md bg-gray-100 p-1 dark:bg-gray-800">
         {(['draw', 'upload'] as Mode[]).map((m) => (
           <button
             key={m}
@@ -271,8 +271,8 @@ export function SignatureTool({ open, onClose }: SignatureToolProps) {
             aria-pressed={mode === m}
             className={`flex-1 rounded px-3 py-1.5 text-sm font-medium capitalize transition ${
               mode === m
-                ? 'bg-white text-red-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-white text-red-600 shadow-sm dark:bg-gray-700 dark:text-red-400'
+                : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
             }`}
           >
             {m}
@@ -294,11 +294,11 @@ export function SignatureTool({ open, onClose }: SignatureToolProps) {
             style={{ aspectRatio: `${PAD_WIDTH} / ${PAD_HEIGHT}`, cursor: 'crosshair' }}
           />
           <div className="mt-2 flex items-center justify-between">
-            <p className="text-xs text-gray-500">Draw your signature above.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Draw your signature above.</p>
             <button
               type="button"
               onClick={clearCanvas}
-              className="text-xs font-medium text-gray-500 hover:text-gray-800"
+              className="text-xs font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
             >
               Clear
             </button>
@@ -306,11 +306,11 @@ export function SignatureTool({ open, onClose }: SignatureToolProps) {
         </div>
       ) : (
         <div>
-          <label className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center transition hover:bg-gray-100">
-            <span className="text-sm font-medium text-gray-700">
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-md border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center transition hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
               Choose an image
             </span>
-            <span className="mt-1 text-xs text-gray-500">
+            <span className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               PNG with transparency works best
             </span>
             <input

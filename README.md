@@ -4,6 +4,12 @@
 
 Live: **https://freepdf-e5m.pages.dev**
 
+<p align="center">
+  <img src="./source.gif" alt="Dobby is free" width="480" />
+</p>
+
+<p align="center"><strong>Master gave Dobby a sock. PDF IS FREE.</strong></p>
+
 > Every operation runs client-side. There is zero server cost per edit, so there is no reason to paywall. That cost structure is the whole reason this can stay free.
 
 ## Why it is free

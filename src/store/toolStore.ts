@@ -6,6 +6,7 @@ import { ANNOTATION_RED, BLACK, HIGHLIGHT_YELLOW, WHITE } from '@/types/edits';
 export type Tool =
   | 'select'
   | 'text'
+  | 'matchstyle'
   | 'highlight'
   | 'rect'
   | 'line'

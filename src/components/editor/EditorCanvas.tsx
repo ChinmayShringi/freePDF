@@ -7,6 +7,7 @@ import { useToolStore } from '@/store/toolStore';
 import { rgbToHex } from '@/lib/color';
 import { BLACK, HIGHLIGHT_OPACITY } from '@/types/edits';
 import { findRunAt, type TextRun } from '@/lib/pdf/textRuns';
+import { sampleRunColor } from '@/lib/pdf/sampleColor';
 import {
   ImageNode,
   PolylineNode,
@@ -75,6 +76,7 @@ export function EditorCanvas({
   const activeTool = useToolStore((s) => s.activeTool);
   const setTool = useToolStore((s) => s.setTool);
   const textDefaults = useToolStore((s) => s.textDefaults);
+  const setTextDefaults = useToolStore((s) => s.setTextDefaults);
   const annotationDefaults = useToolStore((s) => s.annotationDefaults);
 
   const layerRef = useRef<Konva.Layer>(null);
@@ -157,6 +159,32 @@ export function EditorCanvas({
     })();
   };
 
+  /**
+   * Sample the style (font, size, color) of the existing text under (cx, cy)
+   * and apply it: update the text-tool defaults so new text matches, and the
+   * selected text edit if there is one. Then switch to the Text tool.
+   */
+  const matchStyleAt = (cx: number, cy: number) => {
+    if (!getTextRuns) return;
+    void (async () => {
+      const runs = await getTextRuns();
+      const run = findRunAt(runs, cx, cy);
+      if (!run) return;
+      const color = sampleRunColor(pageIndex, run, scale) ?? textDefaults.color;
+      const style = {
+        fontFamily: run.fontFamily,
+        fontSize: Math.round(run.fontSize),
+        color,
+      };
+      setTextDefaults(style);
+      if (selectedEdit?.type === 'text') {
+        beginInteraction();
+        updateEdit(selectedEdit.id, style);
+      }
+      setTool('text');
+    })();
+  };
+
   // Double-click existing PDF text (in Select mode) to edit it in place. The
   // page text is painted on the canvas beneath this overlay, so a double-click
   // "on text" lands on the empty Konva stage.
@@ -207,6 +235,11 @@ export function EditorCanvas({
     if (activeTool === 'replace' && pos) {
       coverAndReplaceAt(pos.x, pos.y);
       setTool('select');
+      return;
+    }
+
+    if (activeTool === 'matchstyle' && pos) {
+      matchStyleAt(pos.x, pos.y);
       return;
     }
 
@@ -312,6 +345,7 @@ export function EditorCanvas({
   const cursor =
     activeTool === 'text' ||
     activeTool === 'replace' ||
+    activeTool === 'matchstyle' ||
     isDrawTool ||
     isStampTool
       ? 'crosshair'

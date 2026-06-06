@@ -21,8 +21,8 @@ export function PropertiesPanel() {
 
   if (!selected) {
     return (
-      <div className="w-64 shrink-0 border-l border-gray-200 bg-white p-4">
-        <p className="text-sm text-gray-500">
+      <div className="w-64 shrink-0 border-l border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Double-click existing text in the PDF to edit it in place. Or pick a
           tool to add text, sign, or annotate, and click an object to adjust it.
         </p>
@@ -32,8 +32,8 @@ export function PropertiesPanel() {
 
   if (selected.type === 'image') {
     return (
-      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">Signature / image</h2>
+      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Signature / image</h2>
         <div className="flex justify-center rounded-md border border-gray-200 bg-[repeating-conic-gradient(#f3f4f6_0_25%,#fff_0_50%)] bg-[length:16px_16px] p-3">
           <img
             src={selected.dataUrl}
@@ -66,12 +66,12 @@ export function PropertiesPanel() {
     } as const;
     const hasStroke = selected.type !== 'highlight' && selected.type !== 'cover';
     return (
-      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-gray-700">
+      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
           {ANNOTATION_LABELS[selected.type]}
         </h2>
 
-        <label className="flex items-center gap-2 text-xs font-medium text-gray-600">
+        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
           Color
           <input
             type="color"
@@ -85,13 +85,13 @@ export function PropertiesPanel() {
         </label>
 
         {hasStroke && 'strokeWidth' in selected && (
-          <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+          <label className="flex flex-col gap-1 text-xs font-medium text-gray-600 dark:text-gray-400">
             Stroke width
             <input
               type="number"
               min={1}
               max={24}
-              className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none"
+              className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
               value={selected.strokeWidth}
               onFocus={beginInteraction}
               onChange={(e) =>
@@ -118,26 +118,26 @@ export function PropertiesPanel() {
   }
 
   return (
-    <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
-      <h2 className="text-sm font-semibold text-gray-700">Text</h2>
+    <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
+      <h2 className="text-sm font-semibold text-gray-700 dark:text-gray-200">Text</h2>
 
-      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600 dark:text-gray-400">
         Content
         <textarea
-          className="min-h-20 resize-y rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none"
+          className="min-h-20 resize-y rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           value={selected.text}
           onFocus={beginInteraction}
           onChange={(e) => updateEdit(selected.id, { text: e.target.value })}
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600 dark:text-gray-400">
         Font size
         <input
           type="number"
           min={6}
           max={144}
-          className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none"
+          className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           value={selected.fontSize}
           onFocus={beginInteraction}
           onChange={(e) =>
@@ -148,10 +148,10 @@ export function PropertiesPanel() {
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+      <label className="flex flex-col gap-1 text-xs font-medium text-gray-600 dark:text-gray-400">
         Font
         <select
-          className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none"
+          className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
           value={selected.fontFamily}
           onChange={(e) => {
             beginInteraction();
@@ -193,7 +193,7 @@ export function PropertiesPanel() {
         {fontError && <span className="text-xs text-red-600">{fontError}</span>}
       </label>
 
-      <label className="flex items-center gap-2 text-xs font-medium text-gray-600">
+      <label className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-400">
         Color
         <input
           type="color"
