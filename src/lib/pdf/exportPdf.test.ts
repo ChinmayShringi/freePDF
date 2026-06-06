@@ -5,6 +5,7 @@ import { isWinAnsiSafe } from './fontEmbedding';
 import {
   ANNOTATION_RED,
   HIGHLIGHT_YELLOW,
+  WHITE,
   type EditObject,
   type ImageEdit,
   type TextEdit,
@@ -163,6 +164,27 @@ describe('buildEditedPdf annotations', () => {
     const reparsed = await PDFDocument.load(out);
     expect(reparsed.getPageCount()).toBe(1);
     // Drawing content should make the output larger than the empty base.
+    expect(out.length).toBeGreaterThan(base.length);
+  });
+
+  it('bakes a cover-and-replace (cover rect + text) into a valid PDF', async () => {
+    const base = await makeBasePdf(1);
+    const edits: EditObject[] = [
+      {
+        id: 'c1',
+        type: 'cover',
+        pageIndex: 0,
+        x: 70,
+        y: 95,
+        width: 160,
+        height: 24,
+        color: WHITE,
+      },
+      textEdit({ id: 'rt', x: 72, y: 100, text: 'Replacement' }),
+    ];
+    const out = await buildEditedPdf(base, edits);
+    const reparsed = await PDFDocument.load(out);
+    expect(reparsed.getPageCount()).toBe(1);
     expect(out.length).toBeGreaterThan(base.length);
   });
 });

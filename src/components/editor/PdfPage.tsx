@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { PDFPageProxy } from '@/types/pdf';
 import { useDocumentStore } from '@/store/documentStore';
 import { renderPageToCanvas } from '@/lib/pdf/renderPdf';
+import { extractTextRuns } from '@/lib/pdf/textRuns';
 import { useElementVisibility } from '@/lib/hooks/useElementVisibility';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
 
@@ -35,6 +36,12 @@ export function PdfPage({ pageNumber, scrollRoot, scale }: PdfPageProps) {
     height: DEFAULT_PT_HEIGHT,
   });
   const [rendered, setRendered] = useState(false);
+
+  // Lazily extract text runs for cover-and-replace; safe to call repeatedly.
+  const getTextRuns = useCallback(async () => {
+    const page = pageProxyRef.current;
+    return page ? extractTextRuns(page) : [];
+  }, []);
 
   const nearViewport = useElementVisibility(wrapperRef, {
     root: scrollRoot,
@@ -115,6 +122,7 @@ export function PdfPage({ pageNumber, scrollRoot, scale }: PdfPageProps) {
             width={cssWidth}
             height={cssHeight}
             scale={scale}
+            getTextRuns={getTextRuns}
           />
         </div>
       )}

@@ -15,6 +15,11 @@ const ANNOTATION_TOOLS: { id: Tool; label: string; title: string }[] = [
   { id: 'line', label: 'Line', title: 'Line (drag)' },
   { id: 'check', label: 'Check', title: 'Checkmark (click to place)' },
   { id: 'x', label: 'X', title: 'X mark (click to place)' },
+  {
+    id: 'replace',
+    label: 'Replace',
+    title: 'Cover & replace text (visual, best-effort): click a text run',
+  },
 ];
 
 interface ToolbarProps {

@@ -57,13 +57,14 @@ export function PropertiesPanel() {
 
   if (selected.type !== 'text') {
     const ANNOTATION_LABELS = {
+      cover: 'Cover',
       highlight: 'Highlight',
       rect: 'Rectangle',
       line: 'Line',
       freehand: 'Drawing',
       stamp: 'Stamp',
     } as const;
-    const hasStroke = selected.type !== 'highlight';
+    const hasStroke = selected.type !== 'highlight' && selected.type !== 'cover';
     return (
       <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
         <h2 className="text-sm font-semibold text-gray-700">
@@ -76,10 +77,10 @@ export function PropertiesPanel() {
             type="color"
             className="h-8 w-12 cursor-pointer rounded border border-gray-300"
             value={rgbToHex(selected.color)}
-            onChange={(e) => {
-              beginInteraction();
-              updateEdit(selected.id, { color: hexToRgb(e.target.value) });
-            }}
+            onFocus={beginInteraction}
+            onChange={(e) =>
+              updateEdit(selected.id, { color: hexToRgb(e.target.value) })
+            }
           />
         </label>
 
@@ -173,10 +174,10 @@ export function PropertiesPanel() {
           type="color"
           className="h-8 w-12 cursor-pointer rounded border border-gray-300"
           value={rgbToHex(selected.color)}
-          onChange={(e) => {
-            beginInteraction();
-            updateEdit(selected.id, { color: hexToRgb(e.target.value) });
-          }}
+          onFocus={beginInteraction}
+          onChange={(e) =>
+            updateEdit(selected.id, { color: hexToRgb(e.target.value) })
+          }
         />
       </label>
 

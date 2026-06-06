@@ -67,6 +67,21 @@ export interface HighlightEdit {
   color: RgbColor;
 }
 
+/**
+ * An opaque filled rectangle used to cover existing page content (the "cover"
+ * half of best-effort cover-and-replace). Default fill is white.
+ */
+export interface CoverEdit {
+  id: string;
+  type: 'cover';
+  pageIndex: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  color: RgbColor;
+}
+
 /** An outlined (unfilled) rectangle. */
 export interface RectEdit {
   id: string;
@@ -115,12 +130,14 @@ export interface StampEdit {
 export type EditObject =
   | TextEdit
   | ImageEdit
+  | CoverEdit
   | HighlightEdit
   | RectEdit
   | PolylineEdit
   | StampEdit;
 
 export const BLACK: RgbColor = { r: 0, g: 0, b: 0 };
+export const WHITE: RgbColor = { r: 1, g: 1, b: 1 };
 export const HIGHLIGHT_YELLOW: RgbColor = { r: 1, g: 0.92, b: 0.23 };
 export const ANNOTATION_RED: RgbColor = { r: 0.86, g: 0.15, b: 0.15 };
 

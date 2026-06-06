@@ -7,6 +7,7 @@ import {
 } from '@/lib/pdf/coordinateTransform';
 import { createFontResolver, type FontResolver } from '@/lib/pdf/fontEmbedding';
 import {
+  drawCover,
   drawHighlight,
   drawPolyline,
   drawRect,
@@ -96,6 +97,9 @@ export async function buildEditedPdf(
       case 'image':
         await drawImageEdit(doc, page, edit);
         break;
+      case 'cover':
+        drawCover(page, edit);
+        break;
       case 'highlight':
         drawHighlight(page, edit);
         break;
@@ -125,7 +129,9 @@ export function downloadPdf(bytes: Uint8Array, fileName: string): void {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  // Revoke after a tick: revoking synchronously can race the browser's
+  // download initiation (notably in Firefox) and produce an empty file.
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /** Derive a sensible download name from the original file name. */

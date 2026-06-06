@@ -4,6 +4,7 @@ import { rgbToHex } from '@/lib/color';
 import {
   HIGHLIGHT_OPACITY,
   stampStrokes,
+  type CoverEdit,
   type EditObject,
   type ImageEdit,
   type PolylineEdit,
@@ -21,7 +22,8 @@ export function isResizable(edit: EditObject | undefined): boolean {
   return (
     edit?.type === 'image' ||
     edit?.type === 'rect' ||
-    edit?.type === 'highlight'
+    edit?.type === 'highlight' ||
+    edit?.type === 'cover'
   );
 }
 
@@ -46,6 +48,7 @@ function dragPatch(scale: number) {
 function useDataUrlImage(dataUrl: string): HTMLImageElement | null {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   useEffect(() => {
+    setImage(null);
     const img = new Image();
     img.onload = () => setImage(img);
     img.src = dataUrl;
@@ -152,9 +155,9 @@ export function RectNode({
   onSelect,
   onChange,
   onDragStart,
-}: NodeProps<RectEdit | HighlightEdit>) {
-  const isHighlight = edit.type === 'highlight';
+}: NodeProps<RectEdit | HighlightEdit | CoverEdit>) {
   const hex = rgbToHex(edit.color);
+  const filled = edit.type === 'highlight' || edit.type === 'cover';
   return (
     <Rect
       id={edit.id}
@@ -162,10 +165,10 @@ export function RectNode({
       y={edit.y * scale}
       width={edit.width * scale}
       height={edit.height * scale}
-      fill={isHighlight ? hex : undefined}
-      opacity={isHighlight ? HIGHLIGHT_OPACITY : 1}
-      stroke={isHighlight ? undefined : hex}
-      strokeWidth={isHighlight ? 0 : (edit as RectEdit).strokeWidth * scale}
+      fill={filled ? hex : undefined}
+      opacity={edit.type === 'highlight' ? HIGHLIGHT_OPACITY : 1}
+      stroke={edit.type === 'rect' ? hex : undefined}
+      strokeWidth={edit.type === 'rect' ? edit.strokeWidth * scale : 0}
       draggable={selectable}
       onMouseDown={(e) => {
         if (!selectable) return;

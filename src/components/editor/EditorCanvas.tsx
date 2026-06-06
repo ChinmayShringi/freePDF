@@ -5,7 +5,8 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import { useEditorStore } from '@/store/editorStore';
 import { useToolStore } from '@/store/toolStore';
 import { rgbToHex } from '@/lib/color';
-import { HIGHLIGHT_OPACITY } from '@/types/edits';
+import { BLACK, HIGHLIGHT_OPACITY } from '@/types/edits';
+import { findRunAt, type TextRun } from '@/lib/pdf/textRuns';
 import {
   ImageNode,
   PolylineNode,
@@ -23,6 +24,8 @@ interface EditorCanvasProps {
   height: number;
   /** Current zoom scale, mapping display points -> CSS pixels. */
   scale: number;
+  /** Lazily fetch this page's text runs (for cover-and-replace). */
+  getTextRuns?: () => Promise<TextRun[]>;
 }
 
 /** Tools that create a shape by dragging out an area or path. */
@@ -59,6 +62,7 @@ export function EditorCanvas({
   width,
   height,
   scale,
+  getTextRuns,
 }: EditorCanvasProps) {
   const allEdits = useEditorStore((s) => s.edits);
   const selectedId = useEditorStore((s) => s.selectedId);
@@ -145,6 +149,44 @@ export function EditorCanvas({
         color,
         strokeWidth,
       });
+      setTool('select');
+      return;
+    }
+
+    if (activeTool === 'replace' && pos && getTextRuns) {
+      const click = pos;
+      void (async () => {
+        const runs = await getTextRuns();
+        const run = findRunAt(runs, click.x, click.y);
+        if (!run) return;
+        const { coverColor } = annotationDefaults;
+        // The extracted run height is roughly cap-to-baseline; pad generously
+        // (especially below, for descenders) so the original is fully hidden.
+        const padX = Math.max(1, run.height * 0.1);
+        const padTop = run.height * 0.25;
+        const padBottom = run.height * 0.35;
+        // Cover first (drawn underneath), then the replacement text on top.
+        addEdit({
+          type: 'cover',
+          pageIndex,
+          x: run.x - padX,
+          y: run.y - padTop,
+          width: run.width + padX * 2,
+          height: run.height + padTop + padBottom,
+          color: coverColor,
+        });
+        const id = addEdit({
+          type: 'text',
+          pageIndex,
+          x: run.x,
+          y: run.y,
+          text: run.text,
+          fontSize: run.fontSize,
+          color: BLACK,
+          fontFamily: 'Helvetica',
+        });
+        select(id);
+      })();
       setTool('select');
       return;
     }
@@ -249,7 +291,12 @@ export function EditorCanvas({
   };
 
   const cursor =
-    activeTool === 'text' || isDrawTool || isStampTool ? 'crosshair' : 'default';
+    activeTool === 'text' ||
+    activeTool === 'replace' ||
+    isDrawTool ||
+    isStampTool
+      ? 'crosshair'
+      : 'default';
 
   return (
     <Stage
@@ -288,6 +335,7 @@ export function EditorCanvas({
                   onChange={(patch) => updateEdit(edit.id, patch)}
                 />
               );
+            case 'cover':
             case 'highlight':
             case 'rect':
               return (

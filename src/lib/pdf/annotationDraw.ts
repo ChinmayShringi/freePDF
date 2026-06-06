@@ -1,5 +1,6 @@
 import { degrees, rgb, type PDFPage } from 'pdf-lib';
 import type {
+  CoverEdit,
   HighlightEdit,
   PolylineEdit,
   RectEdit,
@@ -17,6 +18,20 @@ import {
 function geometryOf(page: PDFPage): PageGeometry {
   const { width, height } = page.getSize();
   return { width, height, rotation: normalizeRotation(page.getRotation().angle) };
+}
+
+/** Draw an opaque filled rectangle that covers existing page content. */
+export function drawCover(page: PDFPage, edit: CoverEdit): void {
+  const geom = geometryOf(page);
+  const anchor = displayToPdf({ x: edit.x, y: edit.y + edit.height }, geom);
+  page.drawRectangle({
+    x: anchor.x,
+    y: anchor.y,
+    width: edit.width,
+    height: edit.height,
+    color: rgb(edit.color.r, edit.color.g, edit.color.b),
+    rotate: degrees(textDrawAngle(geom.rotation)),
+  });
 }
 
 /** Draw a translucent highlight rectangle. */

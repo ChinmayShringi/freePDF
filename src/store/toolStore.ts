@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { RgbColor, StandardFontFamily } from '@/types/edits';
-import { ANNOTATION_RED, BLACK, HIGHLIGHT_YELLOW } from '@/types/edits';
+import { ANNOTATION_RED, BLACK, HIGHLIGHT_YELLOW, WHITE } from '@/types/edits';
 
 /** Active editing tool. */
 export type Tool =
@@ -11,7 +11,8 @@ export type Tool =
   | 'line'
   | 'freehand'
   | 'check'
-  | 'x';
+  | 'x'
+  | 'replace';
 
 interface ToolState {
   activeTool: Tool;
@@ -25,6 +26,8 @@ interface ToolState {
   annotationDefaults: {
     color: RgbColor;
     highlightColor: RgbColor;
+    /** Fill color for cover-and-replace rectangles (default white). */
+    coverColor: RgbColor;
     strokeWidth: number;
     stampSize: number;
   };
@@ -45,6 +48,7 @@ export const useToolStore = create<ToolState>((set) => ({
   annotationDefaults: {
     color: ANNOTATION_RED,
     highlightColor: HIGHLIGHT_YELLOW,
+    coverColor: WHITE,
     strokeWidth: 2,
     stampSize: 28,
   },
