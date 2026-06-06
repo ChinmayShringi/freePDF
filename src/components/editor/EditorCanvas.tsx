@@ -116,6 +116,57 @@ export function EditorCanvas({
     return { x: pos.x / scale, y: pos.y / scale };
   };
 
+  /**
+   * Cover the original text under (cx, cy) and drop an editable text box
+   * prefilled with that run's text, size, and closest standard font. This is
+   * the cover-and-replace flow shared by the Replace tool and double-click.
+   */
+  const coverAndReplaceAt = (cx: number, cy: number) => {
+    if (!getTextRuns) return;
+    void (async () => {
+      const runs = await getTextRuns();
+      const run = findRunAt(runs, cx, cy);
+      if (!run) return;
+      const { coverColor } = annotationDefaults;
+      // The extracted run height is roughly cap-to-baseline; pad generously
+      // (especially below, for descenders) so the original is fully hidden.
+      const padX = Math.max(1, run.height * 0.1);
+      const padTop = run.height * 0.25;
+      const padBottom = run.height * 0.35;
+      // Cover first (drawn underneath), then the replacement text on top.
+      addEdit({
+        type: 'cover',
+        pageIndex,
+        x: run.x - padX,
+        y: run.y - padTop,
+        width: run.width + padX * 2,
+        height: run.height + padTop + padBottom,
+        color: coverColor,
+      });
+      const id = addEdit({
+        type: 'text',
+        pageIndex,
+        x: run.x,
+        y: run.y,
+        text: run.text,
+        fontSize: run.fontSize,
+        color: BLACK,
+        fontFamily: run.fontFamily,
+      });
+      select(id);
+    })();
+  };
+
+  // Double-click existing PDF text (in Select mode) to edit it in place. The
+  // page text is painted on the canvas beneath this overlay, so a double-click
+  // "on text" lands on the empty Konva stage.
+  const handleDblClick = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
+    if (activeTool !== 'select') return;
+    if (e.target !== e.target.getStage()) return;
+    const pos = displayPos(e);
+    if (pos) coverAndReplaceAt(pos.x, pos.y);
+  };
+
   const handleMouseDown = (e: KonvaEventObject<MouseEvent>) => {
     const clickedEmpty = e.target === e.target.getStage();
     const pos = displayPos(e);
@@ -153,40 +204,8 @@ export function EditorCanvas({
       return;
     }
 
-    if (activeTool === 'replace' && pos && getTextRuns) {
-      const click = pos;
-      void (async () => {
-        const runs = await getTextRuns();
-        const run = findRunAt(runs, click.x, click.y);
-        if (!run) return;
-        const { coverColor } = annotationDefaults;
-        // The extracted run height is roughly cap-to-baseline; pad generously
-        // (especially below, for descenders) so the original is fully hidden.
-        const padX = Math.max(1, run.height * 0.1);
-        const padTop = run.height * 0.25;
-        const padBottom = run.height * 0.35;
-        // Cover first (drawn underneath), then the replacement text on top.
-        addEdit({
-          type: 'cover',
-          pageIndex,
-          x: run.x - padX,
-          y: run.y - padTop,
-          width: run.width + padX * 2,
-          height: run.height + padTop + padBottom,
-          color: coverColor,
-        });
-        const id = addEdit({
-          type: 'text',
-          pageIndex,
-          x: run.x,
-          y: run.y,
-          text: run.text,
-          fontSize: run.fontSize,
-          color: BLACK,
-          fontFamily: 'Helvetica',
-        });
-        select(id);
-      })();
+    if (activeTool === 'replace' && pos) {
+      coverAndReplaceAt(pos.x, pos.y);
       setTool('select');
       return;
     }
@@ -306,6 +325,8 @@ export function EditorCanvas({
       onMouseMove={handleMouseMove}
       onMouseUp={commitDraft}
       onMouseLeave={commitDraft}
+      onDblClick={handleDblClick}
+      onDblTap={handleDblClick}
       style={{ cursor }}
     >
       <Layer ref={layerRef}>

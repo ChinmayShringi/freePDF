@@ -23,8 +23,8 @@ export function PropertiesPanel() {
     return (
       <div className="w-64 shrink-0 border-l border-gray-200 bg-white p-4">
         <p className="text-sm text-gray-500">
-          Select the Text tool and click on the page to add text, or click an
-          existing object to edit it.
+          Double-click existing text in the PDF to edit it in place. Or pick a
+          tool to add text, sign, or annotate, and click an object to adjust it.
         </p>
       </div>
     );

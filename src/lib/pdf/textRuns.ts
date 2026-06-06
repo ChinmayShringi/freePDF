@@ -1,5 +1,6 @@
 import { Util } from 'pdfjs-dist';
 import type { PDFPageProxy } from '@/types/pdf';
+import type { StandardFontFamily } from '@/types/edits';
 
 /**
  * A run of text extracted from a PDF page, expressed in display space
@@ -12,6 +13,20 @@ export interface TextRun {
   width: number;
   height: number;
   fontSize: number;
+  /** Closest standard font family, inferred from the run's font. */
+  fontFamily: StandardFontFamily;
+}
+
+/** Map a PDF.js CSS-ish font family string to one of our standard families. */
+export function guessFontFamily(
+  cssFamily: string | undefined,
+): StandardFontFamily {
+  const f = (cssFamily ?? '').toLowerCase();
+  if (f.includes('mono') || f.includes('courier')) return 'Courier';
+  if ((f.includes('serif') && !f.includes('sans')) || f.includes('times')) {
+    return 'TimesRoman';
+  }
+  return 'Helvetica';
 }
 
 /**
@@ -23,6 +38,9 @@ export interface TextRun {
 export async function extractTextRuns(page: PDFPageProxy): Promise<TextRun[]> {
   const viewport = page.getViewport({ scale: 1 });
   const content = await page.getTextContent();
+  const styles = content.styles as
+    | Record<string, { fontFamily?: string }>
+    | undefined;
   const runs: TextRun[] = [];
 
   for (const item of content.items) {
@@ -39,6 +57,7 @@ export async function extractTextRuns(page: PDFPageProxy): Promise<TextRun[]> {
       width: item.width,
       height: fontHeight,
       fontSize: fontHeight,
+      fontFamily: guessFontFamily(styles?.[item.fontName]?.fontFamily),
     });
   }
 
