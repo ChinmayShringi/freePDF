@@ -3,6 +3,7 @@ import type { PDFPageProxy } from '@/types/pdf';
 import { useDocumentStore } from '@/store/documentStore';
 import { renderPageToCanvas } from '@/lib/pdf/renderPdf';
 import { useElementVisibility } from '@/lib/hooks/useElementVisibility';
+import { EditorCanvas } from '@/components/editor/EditorCanvas';
 
 /** US Letter at 72dpi — placeholder aspect ratio until the real page is measured. */
 const DEFAULT_PT_WIDTH = 612;
@@ -105,6 +106,16 @@ export function PdfPage({ pageNumber, scrollRoot, scale }: PdfPageProps) {
       {!rendered && (
         <div className="absolute inset-0 flex items-center justify-center text-sm text-gray-400">
           Page {pageNumber}
+        </div>
+      )}
+      {nearViewport && rendered && (
+        <div className="absolute inset-0">
+          <EditorCanvas
+            pageIndex={pageNumber - 1}
+            width={cssWidth}
+            height={cssHeight}
+            scale={scale}
+          />
         </div>
       )}
     </div>

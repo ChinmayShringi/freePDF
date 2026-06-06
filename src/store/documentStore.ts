@@ -6,6 +6,17 @@ import {
   createLoadingTask,
   readFileAsArrayBuffer,
 } from '@/lib/pdf/loadPdf';
+import { useEditorStore } from '@/store/editorStore';
+
+/** Drop all overlay edits and undo history (used when the document changes). */
+function clearEdits() {
+  useEditorStore.setState({
+    edits: [],
+    past: [],
+    future: [],
+    selectedId: null,
+  });
+}
 
 /** Zoom bounds and step for the viewer. */
 export const MIN_SCALE = 0.25;
@@ -58,6 +69,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     if (previousTask) {
       void previousTask.destroy();
     }
+    clearEdits();
 
     set({
       status: 'loading',
@@ -112,6 +124,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => ({
     if (previousTask) {
       void previousTask.destroy();
     }
+    clearEdits();
     set({
       originalBytes: null,
       pdf: null,
