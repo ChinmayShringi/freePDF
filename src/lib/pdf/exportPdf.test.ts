@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, it, expect } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
 import { buildEditedPdf, dataUrlToBytes, editedFileName } from './exportPdf';
@@ -184,6 +185,25 @@ describe('buildEditedPdf annotations', () => {
       textEdit({ id: 'rt', x: 72, y: 100, text: 'Replacement' }),
     ];
     const out = await buildEditedPdf(base, edits);
+    const reparsed = await PDFDocument.load(out);
+    expect(reparsed.getPageCount()).toBe(1);
+    expect(out.length).toBeGreaterThan(base.length);
+  });
+});
+
+describe('buildEditedPdf custom fonts', () => {
+  it('embeds a custom font for a text edit referencing it', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const fontBytes = new Uint8Array(
+      readFileSync(resolve('src/assets/fonts/NotoSans-Regular.ttf')),
+    );
+    const base = await makeBasePdf(1);
+    const out = await buildEditedPdf(
+      base,
+      [textEdit({ fontFamily: 'custom-abc', text: 'Custom font text' })],
+      { 'custom-abc': fontBytes },
+    );
     const reparsed = await PDFDocument.load(out);
     expect(reparsed.getPageCount()).toBe(1);
     expect(out.length).toBeGreaterThan(base.length);

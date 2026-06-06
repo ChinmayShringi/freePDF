@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Text, Image as KonvaImage, Rect, Line, Group } from 'react-konva';
 import { rgbToHex } from '@/lib/color';
+import { cssFamilyFor, useFontStore } from '@/store/fontStore';
 import {
   HIGHLIGHT_OPACITY,
   stampStrokes,
@@ -67,6 +68,7 @@ export function TextNode({
   onChange,
   onDragStart,
 }: NodeProps<TextEdit>) {
+  const fontOptions = useFontStore((s) => s.options);
   return (
     <Text
       id={edit.id}
@@ -74,13 +76,7 @@ export function TextNode({
       x={edit.x * scale}
       y={edit.y * scale}
       fontSize={edit.fontSize * scale}
-      fontFamily={
-        edit.fontFamily === 'TimesRoman'
-          ? 'serif'
-          : edit.fontFamily === 'Courier'
-            ? 'monospace'
-            : 'sans-serif'
-      }
+      fontFamily={cssFamilyFor(fontOptions, edit.fontFamily)}
       fill={rgbToHex(edit.color)}
       draggable={selectable}
       onMouseDown={(e) => {

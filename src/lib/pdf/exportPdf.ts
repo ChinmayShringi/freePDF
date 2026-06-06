@@ -82,9 +82,10 @@ async function drawImageEdit(
 export async function buildEditedPdf(
   originalBytes: Uint8Array,
   edits: EditObject[],
+  customFontBytes: Record<string, Uint8Array> = {},
 ): Promise<Uint8Array> {
   const doc = await PDFDocument.load(originalBytes);
-  const resolver = await createFontResolver(doc);
+  const resolver = await createFontResolver(doc, customFontBytes);
   const pages = doc.getPages();
 
   for (const edit of edits) {

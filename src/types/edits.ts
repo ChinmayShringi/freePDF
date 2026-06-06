@@ -15,6 +15,13 @@ export interface RgbColor {
 /** The three pdf-lib standard font families (WinAnsi). */
 export type StandardFontFamily = 'Helvetica' | 'TimesRoman' | 'Courier';
 
+/**
+ * Identifier for a chosen font. Either a built-in id (`Helvetica`, `TimesRoman`,
+ * `Courier`, `NotoSans`) or a custom-uploaded id (`custom-<uuid>`). Kept as a
+ * string because the set of fonts is open (the user can upload more).
+ */
+export type FontId = string;
+
 export interface TextEdit {
   id: string;
   type: 'text';
@@ -28,7 +35,8 @@ export interface TextEdit {
   /** Font size in points. */
   fontSize: number;
   color: RgbColor;
-  fontFamily: StandardFontFamily;
+  /** Chosen font id (built-in or custom-uploaded). */
+  fontFamily: FontId;
 }
 
 /**

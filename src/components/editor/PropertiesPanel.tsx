@@ -1,13 +1,8 @@
+import { useRef, useState } from 'react';
 import { useEditorStore } from '@/store/editorStore';
+import { useFontStore } from '@/store/fontStore';
 import { Button } from '@/components/ui/Button';
 import { hexToRgb, rgbToHex } from '@/lib/color';
-import type { StandardFontFamily } from '@/types/edits';
-
-const FONT_OPTIONS: { value: StandardFontFamily; label: string }[] = [
-  { value: 'Helvetica', label: 'Helvetica (sans)' },
-  { value: 'TimesRoman', label: 'Times (serif)' },
-  { value: 'Courier', label: 'Courier (mono)' },
-];
 
 /** Right-hand panel for editing the currently selected object. */
 export function PropertiesPanel() {
@@ -16,6 +11,11 @@ export function PropertiesPanel() {
   const updateEdit = useEditorStore((s) => s.updateEdit);
   const removeEdit = useEditorStore((s) => s.removeEdit);
   const beginInteraction = useEditorStore((s) => s.beginInteraction);
+
+  const fontOptions = useFontStore((s) => s.options);
+  const addCustomFont = useFontStore((s) => s.addCustomFont);
+  const fontInputRef = useRef<HTMLInputElement>(null);
+  const [fontError, setFontError] = useState<string | null>(null);
 
   const selected = edits.find((e) => e.id === selectedId);
 
@@ -155,17 +155,42 @@ export function PropertiesPanel() {
           value={selected.fontFamily}
           onChange={(e) => {
             beginInteraction();
-            updateEdit(selected.id, {
-              fontFamily: e.target.value as StandardFontFamily,
-            });
+            updateEdit(selected.id, { fontFamily: e.target.value });
           }}
         >
-          {FONT_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+          {fontOptions.map((opt) => (
+            <option key={opt.id} value={opt.id}>
               {opt.label}
             </option>
           ))}
         </select>
+        <button
+          type="button"
+          onClick={() => fontInputRef.current?.click()}
+          className="mt-1 self-start text-xs font-medium text-red-600 hover:text-red-700"
+        >
+          + Upload font
+        </button>
+        <input
+          ref={fontInputRef}
+          type="file"
+          accept=".ttf,.otf,font/ttf,font/otf"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (!file) return;
+            setFontError(null);
+            const result = await addCustomFont(file);
+            if ('error' in result) {
+              setFontError(result.error);
+              return;
+            }
+            beginInteraction();
+            updateEdit(selected.id, { fontFamily: result.id });
+          }}
+        />
+        {fontError && <span className="text-xs text-red-600">{fontError}</span>}
       </label>
 
       <label className="flex items-center gap-2 text-xs font-medium text-gray-600">

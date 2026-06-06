@@ -8,6 +8,7 @@ import {
 } from '@/lib/pdf/loadPdf';
 import { buildEditedPdf } from '@/lib/pdf/exportPdf';
 import { useEditorStore } from '@/store/editorStore';
+import { useFontStore } from '@/store/fontStore';
 
 /** Max number of page-operation snapshots kept for undo. */
 const MAX_PAGE_OP_HISTORY = 10;
@@ -194,7 +195,8 @@ export const useDocumentStore = create<DocumentState>((set, get) => {
     if (!originalBytes) return null;
     const edits = useEditorStore.getState().edits;
     if (edits.length === 0) return originalBytes.slice();
-    return buildEditedPdf(originalBytes.slice(), edits);
+    const customBytes = useFontStore.getState().customBytes;
+    return buildEditedPdf(originalBytes.slice(), edits, customBytes);
   },
 
   applyPageTransform: async (transform) => {

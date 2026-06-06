@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDocumentStore } from '@/store/documentStore';
 import { useEditorStore } from '@/store/editorStore';
+import { useFontStore } from '@/store/fontStore';
 import { Button } from '@/components/ui/Button';
 import {
   buildEditedPdf,
@@ -23,7 +24,8 @@ export function ExportButton() {
     try {
       // Clone the pristine bytes: pdf-lib's load can detach the buffer, and we
       // must keep the original intact for further edits and re-exports.
-      const bytes = await buildEditedPdf(originalBytes.slice(), edits);
+      const customBytes = useFontStore.getState().customBytes;
+      const bytes = await buildEditedPdf(originalBytes.slice(), edits, customBytes);
       downloadPdf(bytes, editedFileName(fileName));
     } catch (err) {
       setError(
