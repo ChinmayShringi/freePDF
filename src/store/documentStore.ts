@@ -46,6 +46,8 @@ interface DocumentState {
   docId: number;
   /** Current zoom scale (1 = 100%). */
   scale: number;
+  /** Width of the viewer scroll area in CSS px, reported by the viewer. */
+  viewerWidth: number;
   /** 1-based page currently in focus (for the page indicator). */
   currentPage: number;
   /** True while a page operation is baking/transforming/reloading. */
@@ -57,6 +59,9 @@ interface DocumentState {
   setScale: (scale: number) => void;
   zoomIn: () => void;
   zoomOut: () => void;
+  setViewerWidth: (width: number) => void;
+  /** Set zoom so the current page's width fits the viewer. */
+  fitToWidth: () => Promise<void>;
   setCurrentPage: (page: number) => void;
   /** Bake pending text edits, apply a page transform, and reload the document. */
   applyPageTransform: (transform: PageTransform) => Promise<void>;
@@ -104,6 +109,7 @@ export const useDocumentStore = create<DocumentState>((set, get) => {
   error: null,
   docId: 0,
   scale: DEFAULT_SCALE,
+  viewerWidth: 0,
   currentPage: 1,
   pageOpBusy: false,
   pageOpHistory: [],
@@ -164,6 +170,23 @@ export const useDocumentStore = create<DocumentState>((set, get) => {
   setScale: (scale) => set({ scale: clampScale(scale) }),
   zoomIn: () => set((s) => ({ scale: clampScale(s.scale + SCALE_STEP) })),
   zoomOut: () => set((s) => ({ scale: clampScale(s.scale - SCALE_STEP) })),
+  setViewerWidth: (width) => set({ viewerWidth: width }),
+
+  fitToWidth: async () => {
+    const { pdf, currentPage, viewerWidth } = get();
+    if (!pdf || viewerWidth <= 0) return;
+    try {
+      const page = await pdf.getPage(currentPage);
+      const pageWidth = page.getViewport({ scale: 1 }).width;
+      if (pageWidth <= 0) return;
+      // Leave room for page padding so the page is not flush to the edges.
+      const target = (viewerWidth - 48) / pageWidth;
+      set({ scale: clampScale(target) });
+    } catch {
+      // A fit failure should not break the viewer; keep the current zoom.
+    }
+  },
+
   setCurrentPage: (page) => set({ currentPage: page }),
 
   getBakedBytes: async () => {

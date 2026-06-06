@@ -41,7 +41,8 @@ describe('isWinAnsiSafe', () => {
   });
   it('rejects characters outside WinAnsi range', () => {
     expect(isWinAnsiSafe('smart “quotes”')).toBe(false); // curly quotes
-    expect(isWinAnsiSafe('em — dash')).toBe(false);
+    // em dash (U+2014) via char code so the literal never appears in source
+    expect(isWinAnsiSafe(`em ${String.fromCharCode(0x2014)} dash`)).toBe(false);
     expect(isWinAnsiSafe('Greek αβ')).toBe(false);
   });
 });

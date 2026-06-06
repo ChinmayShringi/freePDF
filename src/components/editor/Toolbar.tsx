@@ -1,5 +1,6 @@
 import { useDocumentStore } from '@/store/documentStore';
 import { useToolStore, type Tool } from '@/store/toolStore';
+import { useEditorStore } from '@/store/editorStore';
 import { Button } from '@/components/ui/Button';
 import { ExportButton } from '@/components/editor/ExportButton';
 
@@ -34,10 +35,18 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
   const scale = useDocumentStore((s) => s.scale);
   const zoomIn = useDocumentStore((s) => s.zoomIn);
   const zoomOut = useDocumentStore((s) => s.zoomOut);
+  const fitToWidth = useDocumentStore((s) => s.fitToWidth);
   const reset = useDocumentStore((s) => s.reset);
 
   const activeTool = useToolStore((s) => s.activeTool);
   const setTool = useToolStore((s) => s.setTool);
+
+  const undo = useEditorStore((s) => s.undo);
+  const redo = useEditorStore((s) => s.redo);
+  const clearAll = useEditorStore((s) => s.clearAll);
+  const canUndo = useEditorStore((s) => s.past.length > 0);
+  const canRedo = useEditorStore((s) => s.future.length > 0);
+  const hasEdits = useEditorStore((s) => s.edits.length > 0);
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 py-2">
@@ -90,6 +99,35 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
             </button>
           ))}
         </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            onClick={undo}
+            disabled={!canUndo}
+            aria-label="Undo"
+            title="Undo (Ctrl/Cmd+Z)"
+          >
+            Undo
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={redo}
+            disabled={!canRedo}
+            aria-label="Redo"
+            title="Redo (Ctrl/Cmd+Shift+Z)"
+          >
+            Redo
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={clearAll}
+            disabled={!hasEdits}
+            aria-label="Clear all edits"
+            title="Clear all edits on every page"
+          >
+            Clear
+          </Button>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -105,6 +143,14 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
           </span>
           <Button variant="ghost" onClick={zoomIn} aria-label="Zoom in" title="Zoom in">
             +
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => void fitToWidth()}
+            aria-label="Fit width"
+            title="Fit page width"
+          >
+            Fit
           </Button>
         </div>
         <ExportButton />

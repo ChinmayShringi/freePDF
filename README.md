@@ -12,10 +12,11 @@
 
 ## Project status
 
-Active build. Done: project setup, PDF viewer, add-text + watermark-free export,
-and page operations (rotate / delete / reorder / merge / split). In progress:
-signatures. See [`docs/PROGRESS.md`](./docs/PROGRESS.md) for the full phase
-status and resume guide.
+v1 complete. Viewer, add-text, page operations (rotate / delete / reorder /
+merge / split), signatures (draw or upload), annotations (highlight, freehand,
+rectangle, line, checkmark, X), best-effort cover-and-replace text, undo/redo,
+fit-to-width, and watermark-free export are all implemented and verified. See
+[`docs/PROGRESS.md`](./docs/PROGRESS.md) for the full phase status and notes.
 
 ## Features (v1 scope)
 

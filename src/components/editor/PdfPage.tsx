@@ -6,7 +6,7 @@ import { extractTextRuns } from '@/lib/pdf/textRuns';
 import { useElementVisibility } from '@/lib/hooks/useElementVisibility';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
 
-/** US Letter at 72dpi — placeholder aspect ratio until the real page is measured. */
+/** US Letter at 72dpi: placeholder aspect ratio until the real page is measured. */
 const DEFAULT_PT_WIDTH = 612;
 const DEFAULT_PT_HEIGHT = 792;
 

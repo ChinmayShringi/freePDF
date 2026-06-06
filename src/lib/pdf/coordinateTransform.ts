@@ -7,14 +7,14 @@
  *
  * Three coordinate spaces are involved:
  *
- *  - **Display space** — what the user sees and manipulates on the Konva
+ *  - **Display space**: what the user sees and manipulates on the Konva
  *    overlay, in CSS points at scale 1 (origin top-left, y grows downward).
  *    Edit objects are stored here because it is scale-independent and the
  *    overlay needs no rotation math at all (just multiply by the zoom scale).
  *
- *  - **Canvas space** — display space multiplied by the current zoom `scale`.
+ *  - **Canvas space**: display space multiplied by the current zoom `scale`.
  *
- *  - **PDF user space** — what pdf-lib draws into (origin bottom-left, y grows
+ *  - **PDF user space**: what pdf-lib draws into (origin bottom-left, y grows
  *    upward), always the *unrotated* page coordinates. A page's `/Rotate` is
  *    applied by the viewer at display time, so converting display -> PDF must
  *    undo that rotation, and export must re-apply it via the text's draw angle.
