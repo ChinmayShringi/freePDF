@@ -1,9 +1,17 @@
 import { create } from 'zustand';
 import type { RgbColor, StandardFontFamily } from '@/types/edits';
-import { BLACK } from '@/types/edits';
+import { ANNOTATION_RED, BLACK, HIGHLIGHT_YELLOW } from '@/types/edits';
 
-/** Active editing tool. Grows as later phases add signature/annotation tools. */
-export type Tool = 'select' | 'text';
+/** Active editing tool. */
+export type Tool =
+  | 'select'
+  | 'text'
+  | 'highlight'
+  | 'rect'
+  | 'line'
+  | 'freehand'
+  | 'check'
+  | 'x';
 
 interface ToolState {
   activeTool: Tool;
@@ -13,9 +21,17 @@ interface ToolState {
     color: RgbColor;
     fontFamily: StandardFontFamily;
   };
+  /** Defaults applied to newly created annotation shapes. */
+  annotationDefaults: {
+    color: RgbColor;
+    highlightColor: RgbColor;
+    strokeWidth: number;
+    stampSize: number;
+  };
   setTool: (tool: Tool) => void;
-  setTextDefaults: (
-    patch: Partial<ToolState['textDefaults']>,
+  setTextDefaults: (patch: Partial<ToolState['textDefaults']>) => void;
+  setAnnotationDefaults: (
+    patch: Partial<ToolState['annotationDefaults']>,
   ) => void;
 }
 
@@ -26,7 +42,15 @@ export const useToolStore = create<ToolState>((set) => ({
     color: BLACK,
     fontFamily: 'Helvetica',
   },
+  annotationDefaults: {
+    color: ANNOTATION_RED,
+    highlightColor: HIGHLIGHT_YELLOW,
+    strokeWidth: 2,
+    stampSize: 28,
+  },
   setTool: (tool) => set({ activeTool: tool }),
   setTextDefaults: (patch) =>
     set((s) => ({ textDefaults: { ...s.textDefaults, ...patch } })),
+  setAnnotationDefaults: (patch) =>
+    set((s) => ({ annotationDefaults: { ...s.annotationDefaults, ...patch } })),
 }));

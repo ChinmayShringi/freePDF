@@ -2,7 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { PDFDocument } from 'pdf-lib';
 import { buildEditedPdf, dataUrlToBytes, editedFileName } from './exportPdf';
 import { isWinAnsiSafe } from './fontEmbedding';
-import type { ImageEdit, TextEdit } from '@/types/edits';
+import {
+  ANNOTATION_RED,
+  HIGHLIGHT_YELLOW,
+  type EditObject,
+  type ImageEdit,
+  type TextEdit,
+} from '@/types/edits';
 
 /** A valid 1x1 opaque-red PNG (generated with zlib), as a data URL. */
 const PNG_1X1 =
@@ -81,6 +87,83 @@ describe('buildEditedPdf', () => {
     expect(out.length).toBeGreaterThan(0);
     const reparsed = await PDFDocument.load(out);
     expect(reparsed.getPageCount()).toBe(1);
+  });
+});
+
+describe('buildEditedPdf annotations', () => {
+  const annotations: EditObject[] = [
+    {
+      id: 'h1',
+      type: 'highlight',
+      pageIndex: 0,
+      x: 50,
+      y: 50,
+      width: 120,
+      height: 18,
+      color: HIGHLIGHT_YELLOW,
+    },
+    {
+      id: 'r1',
+      type: 'rect',
+      pageIndex: 0,
+      x: 60,
+      y: 120,
+      width: 100,
+      height: 80,
+      color: ANNOTATION_RED,
+      strokeWidth: 2,
+    },
+    {
+      id: 'l1',
+      type: 'line',
+      pageIndex: 0,
+      x: 40,
+      y: 40,
+      points: [0, 0, 150, 60],
+      color: ANNOTATION_RED,
+      strokeWidth: 2,
+    },
+    {
+      id: 'f1',
+      type: 'freehand',
+      pageIndex: 0,
+      x: 200,
+      y: 200,
+      points: [0, 0, 10, 15, 25, 5, 40, 30],
+      color: ANNOTATION_RED,
+      strokeWidth: 3,
+    },
+    {
+      id: 's1',
+      type: 'stamp',
+      kind: 'check',
+      pageIndex: 0,
+      x: 300,
+      y: 300,
+      size: 28,
+      color: ANNOTATION_RED,
+      strokeWidth: 2,
+    },
+    {
+      id: 's2',
+      type: 'stamp',
+      kind: 'x',
+      pageIndex: 0,
+      x: 350,
+      y: 300,
+      size: 28,
+      color: ANNOTATION_RED,
+      strokeWidth: 2,
+    },
+  ];
+
+  it('bakes every annotation type into a valid PDF', async () => {
+    const base = await makeBasePdf(1);
+    const out = await buildEditedPdf(base, annotations);
+    const reparsed = await PDFDocument.load(out);
+    expect(reparsed.getPageCount()).toBe(1);
+    // Drawing content should make the output larger than the empty base.
+    expect(out.length).toBeGreaterThan(base.length);
   });
 });
 

@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import type { EditObject, RgbColor, StandardFontFamily } from '@/types/edits';
 
+/** An edit object without its id, used when creating a new one. */
+export type DraftEdit = EditObject extends infer T
+  ? T extends EditObject
+    ? Omit<T, 'id'>
+    : never
+  : never;
+
 /**
  * Overlay edit state with snapshot-based undo/redo.
  *
@@ -41,6 +48,8 @@ interface EditorState {
   beginInteraction: () => void;
   addText: (input: NewTextInput) => string;
   addImage: (input: NewImageInput) => string;
+  /** Add any fully-formed edit (id is assigned here). Used by annotations. */
+  addEdit: (draft: DraftEdit) => string;
   updateEdit: (id: string, patch: Partial<EditObject>) => void;
   removeEdit: (id: string) => void;
   select: (id: string | null) => void;
@@ -101,6 +110,14 @@ export const useEditorStore = create<EditorState>((set, get) => {
         height: input.height,
         dataUrl: input.dataUrl,
       };
+      set((s) => ({ edits: [...s.edits, edit], selectedId: id }));
+      return id;
+    },
+
+    addEdit: (draft) => {
+      pushHistory();
+      const id = newId();
+      const edit = { ...draft, id } as EditObject;
       set((s) => ({ edits: [...s.edits, edit], selectedId: id }));
       return id;
     },

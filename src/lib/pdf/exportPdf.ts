@@ -6,6 +6,12 @@ import {
   textDrawAngle,
 } from '@/lib/pdf/coordinateTransform';
 import { createFontResolver, type FontResolver } from '@/lib/pdf/fontEmbedding';
+import {
+  drawHighlight,
+  drawPolyline,
+  drawRect,
+  drawStamp,
+} from '@/lib/pdf/annotationDraw';
 
 /** Decode a base64 data URL into raw bytes. `atob` exists in browsers, jsdom, and Node. */
 export function dataUrlToBytes(dataUrl: string): Uint8Array {
@@ -83,10 +89,26 @@ export async function buildEditedPdf(
   for (const edit of edits) {
     const page = pages[edit.pageIndex];
     if (!page) continue;
-    if (edit.type === 'text') {
-      await drawTextEdit(page, resolver, edit);
-    } else if (edit.type === 'image') {
-      await drawImageEdit(doc, page, edit);
+    switch (edit.type) {
+      case 'text':
+        await drawTextEdit(page, resolver, edit);
+        break;
+      case 'image':
+        await drawImageEdit(doc, page, edit);
+        break;
+      case 'highlight':
+        drawHighlight(page, edit);
+        break;
+      case 'rect':
+        drawRect(page, edit);
+        break;
+      case 'line':
+      case 'freehand':
+        drawPolyline(page, edit);
+        break;
+      case 'stamp':
+        drawStamp(page, edit);
+        break;
     }
   }
 

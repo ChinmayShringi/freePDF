@@ -55,6 +55,67 @@ export function PropertiesPanel() {
     );
   }
 
+  if (selected.type !== 'text') {
+    const ANNOTATION_LABELS = {
+      highlight: 'Highlight',
+      rect: 'Rectangle',
+      line: 'Line',
+      freehand: 'Drawing',
+      stamp: 'Stamp',
+    } as const;
+    const hasStroke = selected.type !== 'highlight';
+    return (
+      <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-gray-700">
+          {ANNOTATION_LABELS[selected.type]}
+        </h2>
+
+        <label className="flex items-center gap-2 text-xs font-medium text-gray-600">
+          Color
+          <input
+            type="color"
+            className="h-8 w-12 cursor-pointer rounded border border-gray-300"
+            value={rgbToHex(selected.color)}
+            onChange={(e) => {
+              beginInteraction();
+              updateEdit(selected.id, { color: hexToRgb(e.target.value) });
+            }}
+          />
+        </label>
+
+        {hasStroke && 'strokeWidth' in selected && (
+          <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
+            Stroke width
+            <input
+              type="number"
+              min={1}
+              max={24}
+              className="rounded border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:border-red-500 focus:outline-none"
+              value={selected.strokeWidth}
+              onFocus={beginInteraction}
+              onChange={(e) =>
+                updateEdit(selected.id, {
+                  strokeWidth: Math.max(
+                    1,
+                    Math.min(24, Number(e.target.value) || 1),
+                  ),
+                })
+              }
+            />
+          </label>
+        )}
+
+        <Button
+          variant="secondary"
+          className="mt-2 border-red-300 text-red-600 hover:bg-red-50"
+          onClick={() => removeEdit(selected.id)}
+        >
+          Delete object
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-64 shrink-0 flex-col gap-4 border-l border-gray-200 bg-white p-4">
       <h2 className="text-sm font-semibold text-gray-700">Text</h2>

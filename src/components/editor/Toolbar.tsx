@@ -8,6 +8,15 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: 'text', label: 'Text' },
 ];
 
+const ANNOTATION_TOOLS: { id: Tool; label: string; title: string }[] = [
+  { id: 'highlight', label: 'Highlight', title: 'Highlight (drag a box)' },
+  { id: 'freehand', label: 'Draw', title: 'Freehand draw' },
+  { id: 'rect', label: 'Box', title: 'Rectangle (drag a box)' },
+  { id: 'line', label: 'Line', title: 'Line (drag)' },
+  { id: 'check', label: 'Check', title: 'Checkmark (click to place)' },
+  { id: 'x', label: 'X', title: 'X mark (click to place)' },
+];
+
 interface ToolbarProps {
   onOpenSignature: () => void;
 }
@@ -58,6 +67,24 @@ export function Toolbar({ onOpenSignature }: ToolbarProps) {
         >
           Sign
         </button>
+        <div className="flex items-center gap-1 rounded-md bg-gray-100 p-1">
+          {ANNOTATION_TOOLS.map((tool) => (
+            <button
+              key={tool.id}
+              type="button"
+              onClick={() => setTool(tool.id)}
+              aria-pressed={activeTool === tool.id}
+              title={tool.title}
+              className={`rounded px-2.5 py-1 text-sm font-medium transition ${
+                activeTool === tool.id
+                  ? 'bg-white text-red-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              {tool.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
