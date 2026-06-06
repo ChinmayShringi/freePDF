@@ -1,0 +1,48 @@
+{
+  "name": "freepdf",
+  "version": "0.1.0",
+  "description": "Actually free, browser-only PDF editor. Edit and download. No paywall. Your files never leave your browser.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Chinmay Shringi",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "keywords": [
+    "pdf",
+    "editor",
+    "free",
+    "browser",
+    "client-side",
+    "no-upload"
+  ],
+  "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "konva": "^10.3.0",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.0.227",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-konva": "^19.2.4",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^25.9.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.3.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.8"
+  }
+}
