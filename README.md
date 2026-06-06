@@ -10,6 +10,13 @@
 - **Static hosting.** Deployed to Cloudflare Pages (free, generous bandwidth), so there is no marginal cost per edit.
 - **No paywall, ever**, on the core edit or export action. Support is an optional, non-blocking tip jar.
 
+## Project status
+
+Active build. Done: project setup, PDF viewer, add-text + watermark-free export,
+and page operations (rotate / delete / reorder / merge / split). In progress:
+signatures. See [`docs/PROGRESS.md`](./docs/PROGRESS.md) for the full phase
+status and resume guide.
+
 ## Features (v1 scope)
 
 - Open and view PDFs (zoom, page navigation, thumbnails)

@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useEditorStore, type NewTextInput } from './editorStore';
-import { BLACK } from '@/types/edits';
+import { BLACK, type TextEdit } from '@/types/edits';
+
+/** Narrow the first edit to a TextEdit for assertions. */
+function firstText(): TextEdit {
+  const e = useEditorStore.getState().edits[0];
+  if (e.type !== 'text') throw new Error('expected a text edit');
+  return e;
+}
 
 const input: NewTextInput = {
   pageIndex: 0,
@@ -27,7 +34,7 @@ describe('editorStore undo/redo', () => {
     const id = useEditorStore.getState().addText(input);
     const { edits, selectedId } = useEditorStore.getState();
     expect(edits).toHaveLength(1);
-    expect(edits[0].text).toBe('Text');
+    expect(firstText().text).toBe('Text');
     expect(selectedId).toBe(id);
   });
 
@@ -38,8 +45,10 @@ describe('editorStore undo/redo', () => {
     store.updateEdit(id, { text: 'Changed' });
     const snapshotAfter = useEditorStore.getState().edits;
     expect(snapshotBefore).not.toBe(snapshotAfter);
-    expect(snapshotBefore[0].text).toBe('Text');
-    expect(snapshotAfter[0].text).toBe('Changed');
+    const before = snapshotBefore[0];
+    const after = snapshotAfter[0];
+    expect(before.type === 'text' && before.text).toBe('Text');
+    expect(after.type === 'text' && after.text).toBe('Changed');
   });
 
   it('undoes and redoes an add', () => {

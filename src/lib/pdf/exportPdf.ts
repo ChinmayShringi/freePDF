@@ -1,11 +1,20 @@
 import { PDFDocument, degrees, rgb, type PDFPage } from 'pdf-lib';
-import type { EditObject, TextEdit } from '@/types/edits';
+import type { EditObject, ImageEdit, TextEdit } from '@/types/edits';
 import {
   displayToPdf,
   normalizeRotation,
   textDrawAngle,
 } from '@/lib/pdf/coordinateTransform';
 import { createFontResolver, type FontResolver } from '@/lib/pdf/fontEmbedding';
+
+/** Decode a base64 data URL into raw bytes. `atob` exists in browsers, jsdom, and Node. */
+export function dataUrlToBytes(dataUrl: string): Uint8Array {
+  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
 
 async function drawTextEdit(
   page: PDFPage,
@@ -31,6 +40,31 @@ async function drawTextEdit(
   });
 }
 
+async function drawImageEdit(
+  doc: PDFDocument,
+  page: PDFPage,
+  edit: ImageEdit,
+): Promise<void> {
+  const { width, height } = page.getSize();
+  const rotation = normalizeRotation(page.getRotation().angle);
+  const png = await doc.embedPng(dataUrlToBytes(edit.dataUrl));
+
+  // drawImage's anchor is the image's bottom-left corner. In display space that
+  // is the rect's bottom-left (x, y + height); convert it to PDF space.
+  const anchor = displayToPdf(
+    { x: edit.x, y: edit.y + edit.height },
+    { width, height, rotation },
+  );
+
+  page.drawImage(png, {
+    x: anchor.x,
+    y: anchor.y,
+    width: edit.width,
+    height: edit.height,
+    rotate: degrees(textDrawAngle(rotation)),
+  });
+}
+
 /**
  * Apply overlay edits to the original PDF bytes and return the new PDF bytes.
  *
@@ -51,6 +85,8 @@ export async function buildEditedPdf(
     if (!page) continue;
     if (edit.type === 'text') {
       await drawTextEdit(page, resolver, edit);
+    } else if (edit.type === 'image') {
+      await drawImageEdit(doc, page, edit);
     }
   }
 

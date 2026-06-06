@@ -31,7 +31,28 @@ export interface TextEdit {
   fontFamily: StandardFontFamily;
 }
 
+/**
+ * A placed raster image (signature drawing or uploaded picture), stored as a
+ * PNG data URL so it round-trips without a server. Position and size are in
+ * display space (points, scale 1).
+ */
+export interface ImageEdit {
+  id: string;
+  type: 'image';
+  pageIndex: number;
+  /** Display-space left edge (points, scale 1). */
+  x: number;
+  /** Display-space top edge (points, scale 1). */
+  y: number;
+  /** Display-space width (points, scale 1). */
+  width: number;
+  /** Display-space height (points, scale 1). */
+  height: number;
+  /** PNG (transparent) data URL. */
+  dataUrl: string;
+}
+
 /** Union of all editable overlay objects. Grows as later phases add tools. */
-export type EditObject = TextEdit;
+export type EditObject = TextEdit | ImageEdit;
 
 export const BLACK: RgbColor = { r: 0, g: 0, b: 0 };
